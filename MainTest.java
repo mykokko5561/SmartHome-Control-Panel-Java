@@ -1,70 +1,67 @@
 package ev_kontrol_20_proje;
 
-/**
- * @author Canberk, Gökdeniz, Mustafa Yavuz, Umut
- */
 public class MainTest {
     public static void main(String[] args) {
         
-        // --- 0. KULLANICI GİRİŞ / KAYIT SİSTEMİ (FILE I/O) ---
-        System.out.println("======= AKILLI EV GİRİŞ SİSTEMİ =======");
+        // --- 0. USER LOGIN / REGISTRATION SYSTEM (FILE I/O) ---
+        System.out.println("======= SMART HOME LOGIN SYSTEM =======");
         UserManager userManager = new UserManager();
         boolean isLoggedin = false;
 
         try {
-            // Senaryo gereği önce örnek bir kullanıcı kaydedelim (Eğer yoksa)
+            // Register a sample user for the scenario (if it doesn't exist)
             userManager.registerUser("admin", "123456");
         } catch (AuthenticationException e) {
-            System.out.println("BİLGİ: " + e.getMessage()); // Zaten kayıtlıysa bu mesajı verir
+            System.out.println("INFO: " + e.getMessage()); // Displays if already registered
         }
 
         try {
-            // Giriş denemesi yapıyoruz
-            System.out.println("\n[SİSTEM] Giriş yapılıyor...");
+            // Attempting to login
+            System.out.println("\n[SYSTEM] Logging in...");
             isLoggedin = userManager.loginUser("admin", "123456");
             if (!isLoggedin) {
-                System.err.println("[-] Hatalı kullanıcı adı veya şifre! Sistem kapatılıyor.");
-                return; // Giriş başarısızsa programı sonlandır
+                System.err.println("[-] Invalid username or password! System shutting down.");
+                return; // Terminate program if login fails
             }
-            System.out.println("[+] Giriş Başarılı! Akıllı Ev Sistemine Hoş Geldiniz.\n");
+            System.out.println("[+] Login Successful! Welcome to the Smart Home System.\n");
         } catch (AuthenticationException e) {
-            System.err.println("[-] GİRİŞ HATASI: " + e.getMessage());
-            return; // Veritabanı okunamadıysa programı sonlandır
+            System.err.println("[-] LOGIN ERROR: " + e.getMessage());
+            return; // Terminate if database cannot be read
         }
 
-        // Singleton Design Pattern Kullanımı: Merkezi Hub oluşturuluyor
+        // Singleton Design Pattern Usage: Creating the Central Hub
         SmartHomeHub hub = SmartHomeHub.getInstance();
 
-        // --- 1. CIHAZLARIN TANIMLANMASI ---
+        // --- 1. DEVICE DEFINITIONS ---
         
-        // Mutfak Grubu
+        // Kitchen Group
         Airfryer airfryer = new Airfryer();
         Ocak ocak = new Ocak();
         Buzdolabi buzdolabi = new Buzdolabi();
         Kettle kettle = new Kettle();
         KahveMakinesi kahveMakinesi = new KahveMakinesi();
 
-        // Temizlik ve İklimlendirme Grubu
+        // Cleaning and Climate Group
         RobotSupurge robot = new RobotSupurge();
         HavaTemizleyici havaTemizleyici = new HavaTemizleyici();
         Derindondurucu dondurucu = new Derindondurucu();
 
-        // Teknoloji ve Eğlence Grubu
-        Televizyon salonTv = new Televizyon("TV_01", "Samsung 4K TV", "Salon");
-        Televizyon mutfakTv = new Televizyon("TV_02", "Philips Android TV", "Mutfak");
+        // Tech and Entertainment Group
+        Televizyon salonTv = new Televizyon("TV_01", "Samsung 4K TV", "Living Room");
+        Televizyon mutfakTv = new Televizyon("TV_02", "Philips Android TV", "Kitchen");
         SesSistemi sesSistemi = new SesSistemi();
 
-        // Güvenlik Grubu
-        AkilliKamera disKapiCam = new AkilliKamera("CAM_01", "Dış Kapı");
-        AkilliKamera bahceCam = new AkilliKamera("CAM_02", "Arka Bahçe");
+        // Security Group
+        AkilliKamera disKapiCam = new AkilliKamera("CAM_01", "Front Door");
+        AkilliKamera bahceCam = new AkilliKamera("CAM_02", "Backyard");
         AkilliKilit kilit = new AkilliKilit();
         SiberGuvenlikBotu firewall = new SiberGuvenlikBotu();
 
-        // Aydınlatma Grubu[cite: 1, 3]
-        AkilliLamba salonLamba = new AkilliLamba("L_01", "Salon");
-        SeritLamba yatakOdasiLed = new SeritLamba("L_02", "Yatak Odası", 150);
+        // Lighting Group
+        AkilliLamba salonLamba = new AkilliLamba("L_01", "Living Room");
+        SeritLamba yatakOdasiLed = new SeritLamba("L_02", "Bedroom", 150);
 
-        // Cihazları Merkezi Hub'a ekleyelim
+        // Adding devices to the Central Hub
         hub.addDevice(airfryer);
         hub.addDevice(ocak);
         hub.addDevice(buzdolabi);
@@ -83,75 +80,75 @@ public class MainTest {
         hub.addDevice(salonLamba);
         hub.addDevice(yatakOdasiLed);
 
-        // --- 2. SISTEM TESTI VE OPERASYONLAR ---
-        System.out.println("======= AKILLI EV SISTEM OPERASYONLARI =======\n");
+        // --- 2. SYSTEM TEST AND OPERATIONS ---
+        System.out.println("======= SMART HOME SYSTEM OPERATIONS =======\n");
 
         try {
-            System.out.println("[+] Mutfak hazirlaniyor...");
+            System.out.println("[+] Preparing Kitchen...");
             kettle.startBrewing();
             kahveMakinesi.setCoffeeType("Espresso");
             kahveMakinesi.startBrewing();
         } catch (DeviceOperationException e) {
-            System.err.println("[-] HATA (Mutfak): " + e.getMessage());
+            System.err.println("[-] ERROR (Kitchen): " + e.getMessage());
         }
 
         try {
-            System.out.println("\n[+] Temizlik ve Hava Kontrolü baslatildi...");
+            System.out.println("\n[+] Cleaning and Air Control started...");
             robot.startCleaning();
             havaTemizleyici.setAirQualityIndex(45);
             havaTemizleyici.startCleaning();
         } catch (DeviceOperationException e) {
-            System.err.println("[-] HATA (Temizlik): " + e.getMessage());
+            System.err.println("[-] ERROR (Cleaning): " + e.getMessage());
         }
 
-        System.out.println("\n[+] Eglence sistemi aktive ediliyor...");
+        System.out.println("\n[+] Entertainment system activating...");
         salonTv.setActivePlatform("Netflix");
         salonTv.startPlaying();
-        sesSistemi.setSurroundMode("Sinema Modu");
+        sesSistemi.setSurroundMode("Cinema Mode");
         sesSistemi.startPlaying();
 
-        System.out.println("\n[+] Güvenlik ve Aydinlatma ayarlaniyor...");
+        System.out.println("\n[+] Configuring Security and Lighting...");
         firewall.activateSecurity();
         firewall.setBlockedThreatsCount(2);
         kilit.activateSecurity();
-        salonLamba.changeBrightness(40); //[cite: 1]
-        yatakOdasiLed.setColorCode("Gün Isigi");
+        salonLamba.changeBrightness(40); 
+        yatakOdasiLed.setColorCode("Daylight");
 
-        // --- 3. DETAYLI SISTEM RAPORU ---
+        // --- 3. DETAILED SYSTEM REPORT ---
         System.out.println("\n============================================================");
-        System.out.println("                AKILLI EV GÜNCEL DURUM RAPORU               ");
+        System.out.println("                SMART HOME CURRENT STATUS REPORT                ");
         System.out.println("============================================================\n");
 
-        System.out.println("--- MUTFAK VE PISIRME GRUBU ---");
+        System.out.println("--- KITCHEN AND COOKING GROUP ---");
         System.out.println(airfryer.toString());
         System.out.println(ocak.toString());
         System.out.println(buzdolabi.toString());
         System.out.println(kettle.toString());
         System.out.println(kahveMakinesi.toString());
 
-        System.out.println("\n--- TEMIZLIK VE IKLIMLENDIRME ---");
+        System.out.println("\n--- CLEANING AND CLIMATE CONTROL ---");
         System.out.println(robot.toString());
         System.out.println(havaTemizleyici.toString());
         System.out.println(dondurucu.toString());
 
-        System.out.println("\n--- TEKNOLOJI VE EĞLENCE ---");
+        System.out.println("\n--- TECHNOLOGY AND ENTERTAINMENT ---");
         System.out.println(salonTv.toString());
         System.out.println(mutfakTv.toString());
         System.out.println(sesSistemi.toString());
 
-        System.out.println("\n--- GÜVENLIK SISTEMLERI ---");
+        System.out.println("\n--- SECURITY SYSTEMS ---");
         System.out.println(disKapiCam.toString());
         System.out.println(bahceCam.toString());
         System.out.println(kilit.toString());
         System.out.println(firewall.toString());
 
-        System.out.println("\n--- AYDINLATMA SISTEMLERI ---");
-        System.out.println(salonLamba.toString()); //[cite: 1]
-        System.out.println(yatakOdasiLed.toString()); //[cite: 3]
+        System.out.println("\n--- LIGHTING SYSTEMS ---");
+        System.out.println(salonLamba.toString()); 
+        System.out.println(yatakOdasiLed.toString()); 
 
         System.out.println("\n============================================================");
-        System.out.println("           RAPOR SONU - TÜM SISTEMLER AKTIF");
-        System.out.println("           Sisteme Kayıtlı Toplam Cihaz: " + hub.getTotalDeviceCount());
+        System.out.println("           REPORT END - ALL SYSTEMS ACTIVE");
+        System.out.println("           Total Registered Devices: " + hub.getTotalDeviceCount());
         System.out.println("============================================================");
     }
 }
