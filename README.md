@@ -10,8 +10,6 @@ Rather than relying on external frameworks or libraries, this project focuses on
 
 <div align="center">
   <img width="878" height="644" alt="image" src="https://github.com/user-attachments/assets/e3e7ab03-807e-403d-ac14-f1e85d58db2a" />
-
-  <img src="image-link-1.png" alt="System Main Interface" width="700">
 </div>
 
 ---
