@@ -23,7 +23,8 @@ The backbone of this project is its highly modular class hierarchy. By utilizing
 * **Encapsulation:** Device states, temperature values, and energy consumption metrics are strictly protected using `private` access modifiers. State changes are securely handled through validation-checked `getter` and `setter` methods.
 
 <div align="center">
-  <!-- PLACE A SCREENSHOT OF THE CONSOLE OUTPUT SHOWING DEVICE LIST OR STATUS HERE -->
+ <img width="883" height="636" alt="image" src="https://github.com/user-attachments/assets/0a8deb61-2f75-4f0d-8c16-54b8d0418a68" />
+
   <img src="image-link-2.png" alt="Device Status Output" width="700">
 </div>
 
