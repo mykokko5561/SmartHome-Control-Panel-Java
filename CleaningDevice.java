@@ -1,8 +1,5 @@
 package ev_kontrol_20_proje;
 
-/**
- * @author Member 1
- */
 public abstract class CleaningDevice extends Smartdevice implements Cleanable {
     private boolean isCleaning;
     private String cleaningMode;
