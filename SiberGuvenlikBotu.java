@@ -1,14 +1,10 @@
 package ev_kontrol_20_proje;
 
-/**
- * @author Member 1
- */
 public class SiberGuvenlikBotu extends SecurityDevice {
     private int blockedThreatsCount;
     private boolean isNetworkScanActive;
 
     public SiberGuvenlikBotu() {
-        // Updated to English device name and location (System Room)
         super("SEC_BOT", "Network Security Bot (Firewall)", "System Room", true);
         this.blockedThreatsCount = 0;
         this.isNetworkScanActive = false;
