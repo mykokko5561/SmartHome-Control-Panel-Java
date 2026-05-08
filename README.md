@@ -9,7 +9,9 @@ This project is a comprehensive Smart Home simulation developed entirely from sc
 Rather than relying on external frameworks or libraries, this project focuses on algorithmic problem-solving and core Java capabilities. It demonstrates how a scalable software architecture is built, allowing users to seamlessly manage various household devices, monitor energy usage, and automate daily routines from a single centralized hub.
 
 <div align="center">
+
   <img width="878" height="644" alt="image" src="https://github.com/user-attachments/assets/e3e7ab03-807e-403d-ac14-f1e85d58db2a" />
+
 </div>
 
 ---
@@ -23,9 +25,9 @@ The backbone of this project is its highly modular class hierarchy. By utilizing
 * **Encapsulation:** Device states, temperature values, and energy consumption metrics are strictly protected using `private` access modifiers. State changes are securely handled through validation-checked `getter` and `setter` methods.
 
 <div align="center">
- <img width="883" height="636" alt="image" src="https://github.com/user-attachments/assets/0a8deb61-2f75-4f0d-8c16-54b8d0418a68" />
 
-  <img src="image-link-2.png" alt="Device Status Output" width="700">
+  <img width="883" height="636" alt="image" src="https://github.com/user-attachments/assets/0a8deb61-2f75-4f0d-8c16-54b8d0418a68" />
+
 </div>
 
 ---
@@ -38,8 +40,9 @@ The backbone of this project is its highly modular class hierarchy. By utilizing
 * **Fault Handling:** Basic exception handling to prevent invalid inputs (e.g., entering letters instead of menu numbers, or setting a thermostat to an unrealistic temperature).
 
 <div align="center">
-  <!-- PLACE A SCREENSHOT OF A SPECIFIC ACTION (E.G., ADJUSTING TEMPERATURE OR HANDLING AN ERROR) HERE -->
-  <img src="image-link-3.png" alt="Control Actions and Error Handling" width="700">
+
+  <img width="873" height="644" alt="image" src="https://github.com/user-attachments/assets/a134a89f-755b-4951-a3fc-48b6d2b5f9af" />
+
 </div>
 
 ---
