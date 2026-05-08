@@ -1,8 +1,5 @@
 package ev_kontrol_20_proje;
 
-/**
- * @author Member 1
- */
 public abstract class SecurityDevice extends Smartdevice implements Securable {
     private boolean isSecurityActive;
     private int threatLevel; // 0: Safe, 1: Suspicious, 2: Danger
