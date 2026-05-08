@@ -1,8 +1,5 @@
 package ev_kontrol_20_proje;
 
-/**
- * @author Member 1
- */
 public class KahveMakinesi extends DrinkingDevice {
     private String coffeeType;
     private int coffeeBeansPercentage; // Coffee bean level (%)
