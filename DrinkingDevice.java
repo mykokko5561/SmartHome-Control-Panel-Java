@@ -1,8 +1,5 @@
 package ev_kontrol_20_proje;
 
-/**
- * @author Member 1
- */
 public abstract class DrinkingDevice extends Smartdevice implements Drinkable {
     private boolean isBrewing;
     private int waterLevelPercentage; // Water level (%)
