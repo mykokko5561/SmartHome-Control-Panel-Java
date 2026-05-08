@@ -1,7 +1,6 @@
 package ev_kontrol_20_proje;
 
 /**
- * @author Member 1
  * Represents the user logging into the system. (Encapsulation)
  */
 public class User {
