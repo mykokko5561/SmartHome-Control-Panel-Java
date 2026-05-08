@@ -1,8 +1,5 @@
 package ev_kontrol_20_proje;
 
-/**
- * @author Member 1
- */
 public class Derindondurucu extends SicaklikDevice {
     private boolean isFastFreezeActive;
     private int iceStockPercentage;
