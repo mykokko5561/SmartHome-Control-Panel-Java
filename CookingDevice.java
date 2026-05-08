@@ -1,8 +1,5 @@
 package ev_kontrol_20_proje;
 
-/**
- * @author Member 1
- */
 public abstract class CookingDevice extends Smartdevice implements Cookable {
     private boolean isCooking;
     private int currentTimerMinutes;
