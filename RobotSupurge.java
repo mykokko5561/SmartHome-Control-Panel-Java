@@ -1,14 +1,12 @@
 package ev_kontrol_20_proje;
 
-/**
- * @author Member 1
- */
+
 public class RobotSupurge extends CleaningDevice {
     private int batteryLevel;
     private int dustbinCapacity; // in percentage
 
     public RobotSupurge() {
-        // Updated to English device name and location (Living Room)
+
         super("RS_01", "Smart Robot Vacuum", "Living Room", false);
         this.batteryLevel = 100;
         this.dustbinCapacity = 0;
