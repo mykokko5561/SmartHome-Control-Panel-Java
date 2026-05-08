@@ -1,8 +1,5 @@
 package ev_kontrol_20_proje;
 
-/**
- * @author Member 1
- */
 public class BulasikMakinesi extends CleaningDevice {
     private int waterTemperature;
     private boolean isEcoWashActive;
