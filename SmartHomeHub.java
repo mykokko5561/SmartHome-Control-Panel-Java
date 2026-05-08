@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author Member 1
  * Central Smart Home System (Singleton Design Pattern)
  * Ensures the entire home system is managed from a single center.
  */
