@@ -3,7 +3,6 @@ package ev_kontrol_20_proje;
 import java.io.*;
 
 /**
- * @author Member 1
  * Manages writing and reading (File I/O) user data to a txt file.
  */
 public class UserManager {
