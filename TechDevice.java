@@ -1,8 +1,5 @@
 package ev_kontrol_20_proje;
 
-/**
- * @author Member 1
- */
 public abstract class TechDevice extends Smartdevice implements Playable {
     private boolean isPlaying;
     private String currentSource;
