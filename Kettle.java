@@ -1,8 +1,5 @@
 package ev_kontrol_20_proje;
 
-/**
- * @author Member 1
- */
 public class Kettle extends DrinkingDevice {
     private int targetTemperature;
     private boolean isKeepWarmActive;
