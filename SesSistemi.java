@@ -1,14 +1,10 @@
 package ev_kontrol_20_proje;
 
-/**
- * @author Member 1
- */
 public class SesSistemi extends TechDevice {
     private int bassLevel;
     private String surroundMode;
 
     public SesSistemi() {
-        // Updated to English device name and location (Living Room)
         super("SS_01", "LG Home Theater System", "Living Room", false);
         this.bassLevel = 5;
         this.surroundMode = "Cinema Mode";
