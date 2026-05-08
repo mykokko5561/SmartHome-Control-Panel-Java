@@ -7,7 +7,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 /**
- * @author Member 1
  * A simple logging system to record system activities into a text file.
  */
 public class DeviceLogger {
