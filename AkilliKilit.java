@@ -1,8 +1,6 @@
 package ev_kontrol_20_proje;
 
-/**
- * @author Member 1
- */
+
 public class AkilliKilit extends SecurityDevice {
     private boolean isLocked;
     private String lastAccessMethod;
