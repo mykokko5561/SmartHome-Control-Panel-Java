@@ -1,8 +1,5 @@
 package ev_kontrol_20_proje;
 
-/**
- * @author Member 1
- */
 public class Buzdolabi extends SicaklikDevice {
     private boolean isEcoMode;
     private boolean doorAlarmRinging;
