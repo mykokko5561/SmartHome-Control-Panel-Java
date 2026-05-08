@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @author Member 1
  * Smart Home OS - Central Graphical User Interface (GUI)
  * Includes Advanced User Session State Management
  */
