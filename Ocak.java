@@ -1,13 +1,9 @@
 package ev_kontrol_20_proje;
 
-/**
- * @author Member 1
- */
 public class Ocak extends CookingDevice {
     private int activeBurners;
 
     public Ocak() {
-        // Updated to English device name and location (Kitchen)
         super("OCK_01", "Electric Stove", "Kitchen", false);
         this.activeBurners = 0;
     }
