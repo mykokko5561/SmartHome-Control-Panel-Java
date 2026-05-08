@@ -9,7 +9,8 @@ This project is a comprehensive Smart Home simulation developed entirely from sc
 Rather than relying on external frameworks or libraries, this project focuses on algorithmic problem-solving and core Java capabilities. It demonstrates how a scalable software architecture is built, allowing users to seamlessly manage various household devices, monitor energy usage, and automate daily routines from a single centralized hub.
 
 <div align="center">
-  <!-- PLACE A SCREENSHOT OF THE MAIN MENU OR BOOT SCREEN HERE -->
+  <img width="878" height="644" alt="image" src="https://github.com/user-attachments/assets/e3e7ab03-807e-403d-ac14-f1e85d58db2a" />
+
   <img src="image-link-1.png" alt="System Main Interface" width="700">
 </div>
 
