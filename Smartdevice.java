@@ -1,8 +1,5 @@
 package ev_kontrol_20_proje;
 
-/**
- * @author Member 1
- */
 public abstract class Smartdevice {
     private String deviceId;
     private String deviceName;
