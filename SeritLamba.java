@@ -4,7 +4,6 @@ public class SeritLamba extends LightingDevice {
     private int ledCount;
 
     public SeritLamba(String deviceId, String roomLocation, int ledCount) {
-        // Updated to English device name
         super(deviceId, "RGB Strip LED", roomLocation, false, 80, "RGB-Mix");
         this.ledCount = ledCount;
     }
