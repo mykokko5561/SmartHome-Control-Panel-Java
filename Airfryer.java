@@ -1,13 +1,10 @@
 package ev_kontrol_20_proje;
 
-/**
- * @author 1. üye
- */
+
 public class Airfryer extends CookingDevice {
     private int temperature;
 
     public Airfryer() {
-        // Cihaz adı ve konumu (Kitchen) İngilizce standartına çekildi
         super("AF_01", "Smart Airfryer", "Kitchen", false);
         this.temperature = 180;
     }
