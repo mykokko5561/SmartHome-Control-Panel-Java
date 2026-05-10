@@ -51,7 +51,6 @@ The backbone of this project is its highly modular class hierarchy. By utilizing
 
 This project is continuously evolving. Planned future updates include:
 - [ ] Integration of a Graphical User Interface (GUI) using JavaFX.
-- [ ] Connecting to a MySQL/PostgreSQL database to save device states persistently.
 - [ ] Adding automated routine triggers (e.g., "Turn on lights when the door unlocks").
 
 ---
