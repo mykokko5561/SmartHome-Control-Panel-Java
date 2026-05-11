@@ -7,39 +7,48 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Smart Home OS - Central Graphical User Interface (GUI)
- * Includes Advanced User Session State Management
+ * @author Member 1
+ * Smart Home OS - Merkezi Grafiksel Kullanıcı Arayüzü (GUI)
+ * Bu sınıf, sistemin ana ekranını oluşturur ve Gelişmiş Kullanıcı Oturum Yönetimi (Session Management) içerir.
+ * Farklı kullanıcıların cihazlarda bıraktığı durumları hafızada tutarak kişiselleştirilmiş bir deneyim sunar.
  */
 public class SmartHomeGUI extends JFrame {
     
-    // --- ENCAPSULATION: Private UI Components ---
-    private CardLayout cardLayout; 
-    private JPanel mainPanel;      
-    private UserManager userManager; 
-    private SmartHomeHub hub;        
+    // --- KAPSÜLLEME (ENCAPSULATION): Arayüz ve Sistem Bileşenleri ---
+    // Değişkenler private tanımlanarak dışarıdan izinsiz erişim engellenmiştir.
+    private CardLayout cardLayout; // Ekranlar (Login, Ana Menü vb.) arası geçişi sağlamak için kullanılır.
+    private JPanel mainPanel;      // Tüm ekranları içinde barındıran ana panel.
+    private UserManager userManager; // Kullanıcı giriş/kayıt işlemlerini yöneten sınıf.
+    private SmartHomeHub hub;        // Evdeki tüm akıllı cihazları barındıran merkezi kontrol ünitesi (Singleton pattern kullanıldığı varsayılmaktadır).
 
-    // --- ACTIVE USER MEMORY ---
-    private Map<Smartdevice, boolean[]> ocakHafizasi = new HashMap<>();
-    private Map<Smartdevice, Integer> airfryerHafizasi = new HashMap<>();
-    private Map<Smartdevice, String> supurgeHafizasi = new HashMap<>();
+    // --- AKTİF KULLANICI HAFIZASI (ACTIVE USER MEMORY) ---
+    // Çalışma zamanında (RAM üzerinde) kullanıcıların cihazlara uyguladığı özel ayarları tutar.
+    private Map<Smartdevice, boolean[]> ocakHafizasi = new HashMap<>(); // Ocağın hangi gözlerinin açık olduğunu tutar.
+    private Map<Smartdevice, Integer> airfryerHafizasi = new HashMap<>(); // Airfryer için ayarlanan son sıcaklık değerini tutar.
+    private Map<Smartdevice, String> supurgeHafizasi = new HashMap<>(); // Robot süpürgenin temizlediği son odayı tutar.
 
-    // --- MULTI-VERSE SESSION MANAGEMENT ---
-    private String loggedInUsername = null;
-    private Map<String, UserSessionState> userSessions = new HashMap<>();
+    // --- ÇOKLU KULLANICI OTURUM YÖNETİMİ (SESSION MANAGEMENT) ---
+    private String loggedInUsername = null; // Sisteme o an giriş yapmış olan kullanıcının adını tutar.
+    private Map<String, UserSessionState> userSessions = new HashMap<>(); // Her kullanıcının kendi ev durumunu (evrenini) kaydetmek için kullanılır.
 
-    // İç Sınıf: Kullanıcının evinin anlık fotoğrafını (Snapshot) tutar
-    // HATA BURADAYDI, DEĞİŞKEN İSİMLERİ DÜZELTİLDİ:
+    /**
+     * İç Sınıf (Inner Class): Kullanıcının evinin anlık fotoğrafını (Snapshot) tutar.
+     * Kullanıcı çıkış yaptığında evin o anki fiziksel durumu buraya kaydedilir, tekrar girdiğinde buradan yüklenir.
+     */
     private class UserSessionState {
+        // Cihazların özel arayüz hafızaları
         Map<Smartdevice, boolean[]> ocakHafizasi = new HashMap<>();
         Map<Smartdevice, Integer> airfryerHafizasi = new HashMap<>();
         Map<Smartdevice, String> supurgeHafizasi = new HashMap<>();
         
+        // Genel cihaz durumları (Açık/Kapalı, Parlaklık seviyeleri, Renk kodları vb.)
         Map<Smartdevice, Boolean> onOffStates = new HashMap<>();
         Map<Smartdevice, Integer> intStates = new HashMap<>();
         Map<Smartdevice, String> stringStates = new HashMap<>();
     }
 
-    // --- MODERN COLOR PALETTE ---
+    // --- MODERN RENK PALETİ (UI DESIGN) ---
+    // Arayüzde kullanılacak renkler final olarak tanımlanıp sabitlenmiştir.
     private final Color bgDark = new Color(30, 33, 36);
     private final Color panelDark = new Color(43, 48, 53);
     private final Color textLight = new Color(230, 230, 230);
@@ -47,27 +56,49 @@ public class SmartHomeGUI extends JFrame {
     private final Color successColor = new Color(46, 204, 113);
     private final Color dangerColor = new Color(231, 76, 60);
 
+    /**
+     * Sınıfın Kurucu Metodu (Constructor).
+     * Arayüz bileşenlerini başlatır, cihazları yükler ve veritabanı bağlantılarını ayarlar.
+     */
     public SmartHomeGUI() {
         userManager = new UserManager();
-        hub = SmartHomeHub.getInstance(); 
-        loadMockDevices();
+        hub = SmartHomeHub.getInstance(); // Singleton deseni ile oluşturulmuş merkezi hub nesnesini alıyoruz.
+        loadMockDevices(); // Eğer sistemde cihaz yoksa, test amaçlı varsayılan cihazları yükler.
 
+        // --- SİSTEM AÇILIŞINDA VERİTABANINDAN (DOSYADAN) DURUMLARI YÜKLE ---
+        // Uygulama ilk açıldığında, en son kaydedilmiş fiziksel cihaz durumlarını dosyadan okur.
+        loadSystemStateFromDatabase();
+
+        // --- SİSTEM KAPANIRKEN SON DURUMU VERİTABANINA (DOSYAYA) KAYDET ---
+        // Runtime ShutdownHook, program kapatıldığında (çarpıya basıldığında) çalışan özel bir Thread'dir.
+        // Bu sayede veri kaybı önlenir ve cihazların son durumları TXT dosyasına yazılır.
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            saveSystemStateToDatabase();
+        }));
+
+        // Pencere genel ayarları
         setTitle("SmartHome OS - Central Control Panel");
         setSize(900, 650);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); 
-        setLocationRelativeTo(null); 
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Kapatıldığında programın durmasını sağlar.
+        setLocationRelativeTo(null); // Pencerenin ekranın tam ortasında açılmasını sağlar.
 
+        // CardLayout kullanarak Login ve Ana Menü arasında pürüzsüz geçiş sağlıyoruz.
         cardLayout = new CardLayout();
         mainPanel = new JPanel(cardLayout);
         mainPanel.setBackground(bgDark);
 
+        // Ekranları ana panele ekliyoruz.
         mainPanel.add(createLoginPanel(), "Login");
         mainPanel.add(createMainMenuPanel(), "MainMenu");
 
         add(mainPanel);
-        cardLayout.show(mainPanel, "Login");
+        cardLayout.show(mainPanel, "Login"); // Başlangıçta giriş ekranını göster.
     }
 
+    /**
+     * Test ortamı için sisteme varsayılan cihazları ekleyen metot.
+     * Polimorfizm kullanılarak farklı cihaz sınıflarından nesneler türetilip ortak bir Hub'a ekleniyor.
+     */
     private void loadMockDevices() {
         if (hub.getTotalDeviceCount() == 0) {
             hub.addDevice(new Airfryer());
@@ -88,9 +119,12 @@ public class SmartHomeGUI extends JFrame {
         }
     }
 
-    // --- 1. AUTHENTICATION SCREEN ---
+    // --- 1. KİMLİK DOĞRULAMA (AUTHENTICATION) EKRANI ---
+    /**
+     * Kullanıcı girişi ve kayıt işlemlerini içeren paneli oluşturur.
+     */
     private JPanel createLoginPanel() {
-        JPanel panel = new JPanel(new GridBagLayout());
+        JPanel panel = new JPanel(new GridBagLayout()); // Öğeleri ortalamak için GridBagLayout kullanıldı.
         panel.setBackground(bgDark);
 
         JPanel loginBox = new JPanel(new GridLayout(5, 1, 10, 15));
@@ -106,25 +140,28 @@ public class SmartHomeGUI extends JFrame {
 
         JTextField userField = new JTextField();
         userField.setBorder(BorderFactory.createTitledBorder("Username"));
-        JPasswordField passField = new JPasswordField();
+        JPasswordField passField = new JPasswordField(); // Şifreyi gizlemek için JPasswordField kullanıldı.
         passField.setBorder(BorderFactory.createTitledBorder("Password"));
 
         JButton loginBtn = createButton("Login", accentColor);
         JButton registerBtn = createButton("Register", panelDark);
         registerBtn.setBorder(BorderFactory.createLineBorder(textLight, 1));
 
+        // Giriş yapma işlemi (Event Listener)
         loginBtn.addActionListener(e -> {
             try {
                 String username = userField.getText().trim();
+                // UserManager üzerinden kimlik doğrulaması yapılıyor
                 if (userManager.loginUser(username, new String(passField.getPassword()))) {
-                    loadUserSession(username); // KULLANICIYA ÖZEL EVRENİ YÜKLE
-                    cardLayout.show(mainPanel, "MainMenu"); 
+                    loadUserSession(username); // Başarılı girişte KULLANICIYA ÖZEL EVRENİ (Session) YÜKLE
+                    cardLayout.show(mainPanel, "MainMenu"); // Ana menüye geçiş yap
                 } else {
                     JOptionPane.showMessageDialog(this, "Invalid credentials!", "Error", JOptionPane.ERROR_MESSAGE);
                 }
             } catch (Exception ex) { JOptionPane.showMessageDialog(this, ex.getMessage()); }
         });
 
+        // Kayıt olma işlemi (Event Listener)
         registerBtn.addActionListener(e -> {
             try {
                 String u = userField.getText().trim();
@@ -136,7 +173,7 @@ public class SmartHomeGUI extends JFrame {
                 userManager.registerUser(u, p);
                 JOptionPane.showMessageDialog(this, "Registration Successful! Logging in...", "Success", JOptionPane.INFORMATION_MESSAGE);
                 
-                loadUserSession(u); // YENİ KULLANICIYA SIFIR EVREN OLUŞTUR
+                loadUserSession(u); // YENİ KULLANICIYA SIFIR BİR OTURUM OLUŞTUR
                 cardLayout.show(mainPanel, "MainMenu");
             } catch (Exception ex) { 
                 JOptionPane.showMessageDialog(this, ex.getMessage(), "Registration Error", JOptionPane.ERROR_MESSAGE); 
@@ -152,7 +189,10 @@ public class SmartHomeGUI extends JFrame {
         return panel;
     }
 
-    // --- 2. MAIN DASHBOARD ---
+    // --- 2. ANA KONTROL PANELİ (MAIN DASHBOARD) ---
+    /**
+     * Kullanıcı başarılı giriş yaptıktan sonra karşılaşacağı kategori menüsünü oluşturur.
+     */
     private JPanel createMainMenuPanel() {
         JPanel panel = new JPanel(new BorderLayout(20, 20));
         panel.setBackground(bgDark);
@@ -163,7 +203,7 @@ public class SmartHomeGUI extends JFrame {
         titleLabel.setForeground(textLight);
         panel.add(titleLabel, BorderLayout.NORTH);
 
-        JPanel gridPanel = new JPanel(new GridLayout(2, 3, 20, 20));
+        JPanel gridPanel = new JPanel(new GridLayout(2, 3, 20, 20)); // Kategorileri ızgara sisteminde dizer.
         gridPanel.setBackground(bgDark);
 
         gridPanel.add(createCategoryButton("Kitchen & Cooking", "Mutfak", "mutfak ve pisirme.jpeg"));
@@ -172,12 +212,13 @@ public class SmartHomeGUI extends JFrame {
         gridPanel.add(createCategoryButton("Security Systems", "Guvenlik", "guvenlik.jpeg"));
         gridPanel.add(createCategoryButton("Lighting Controls", "Aydinlatma", "aydınlatma.jpeg"));
 
+        // Çıkış yapma işlemi
         JButton logoutBtn = createButton("Log Out", dangerColor);
         logoutBtn.addActionListener(e -> {
-            saveCurrentSession(); // ÇIKMADAN ÖNCE EVİN FOTOĞRAFINI ÇEK VE KAYDET
-            resetAllDevices();    // SONRA FİZİKSEL EVİ SIFIRLA
+            saveCurrentSession(); // ÇIKMADAN ÖNCE EVİN O ANKİ DURUMUNU (SNAPSHOT) KULLANICI ADINA KAYDET
+            resetAllDevices();    // FİZİKSEL EVİ SIFIRLA (Sonraki kullanıcı temiz bir evle başlasın)
             loggedInUsername = null;
-            cardLayout.show(mainPanel, "Login");
+            cardLayout.show(mainPanel, "Login"); // Giriş ekranına dön
         });
         gridPanel.add(logoutBtn);
 
@@ -185,6 +226,10 @@ public class SmartHomeGUI extends JFrame {
         return panel;
     }
 
+    /**
+     * Kategori butonlarını oluşturmaya yarayan yardımcı (helper) metot.
+     * Resim boyutlandırma ve tasarım işlemlerini içerir.
+     */
     private JButton createCategoryButton(String title, String categoryCode, String imagePath) {
         JButton btn = new JButton(title);
         btn.setFont(new Font("Segoe UI", Font.BOLD, 18));
@@ -194,6 +239,7 @@ public class SmartHomeGUI extends JFrame {
         btn.setBorder(BorderFactory.createLineBorder(accentColor, 2, true));
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
+        // Resim dosyalarını okuma ve yeniden boyutlandırma bloğu
         try {
             ImageIcon originalIcon = new ImageIcon(imagePath);
             if (originalIcon.getIconWidth() > -1) {
@@ -203,13 +249,18 @@ public class SmartHomeGUI extends JFrame {
                 btn.setVerticalTextPosition(SwingConstants.BOTTOM);
                 btn.setIconTextGap(15);
             }
-        } catch (Exception ex) {}
+        } catch (Exception ex) {
+            // İkon yüklenemezse programın çökmemesi için sessizce hata yutulur (Exception handling).
+        }
 
         btn.addActionListener(e -> openCategoryScreen(title, categoryCode));
         return btn;
     }
 
-    // --- 3. DYNAMIC SUB-MENU (Category View) ---
+    // --- 3. DİNAMİK ALT MENÜ (Kategori Görüntüleme) ---
+    /**
+     * Seçilen kategoriye ait cihazları filtreler ve ekranda dinamik olarak listeler.
+     */
     private void openCategoryScreen(String title, String categoryCode) {
         JPanel catPanel = new JPanel(new BorderLayout(15, 15));
         catPanel.setBackground(bgDark);
@@ -234,6 +285,8 @@ public class SmartHomeGUI extends JFrame {
         devicesPanel.setLayout(new BoxLayout(devicesPanel, BoxLayout.Y_AXIS));
         devicesPanel.setBackground(bgDark);
 
+        // Kategoriye göre cihazları filtreleme işlemi (ÇOK BİÇİMLİLİK - POLYMORPHISM KULLANIMI)
+        // instance of operatörü ile cihazların sınıflarına ve uyguladıkları interface'lere bakılır.
         for (Smartdevice device : hub.getDeviceList()) {
             boolean isMatch = false;
             switch (categoryCode) {
@@ -254,6 +307,7 @@ public class SmartHomeGUI extends JFrame {
                     break;
             }
 
+            // Eğer cihaz kategoriyle eşleşiyorsa, arayüze cihaz kartı olarak ekle.
             if (isMatch) {
                 devicesPanel.add(createDeviceCard(device, title, categoryCode));
                 devicesPanel.add(Box.createRigidArea(new Dimension(0, 10)));
@@ -269,7 +323,11 @@ public class SmartHomeGUI extends JFrame {
         cardLayout.show(mainPanel, "CurrentCategory");
     }
 
-    // --- DEVICE CARD COMPONENT ---
+    // --- CİHAZ KARTLARI (DEVICE CARD COMPONENT) ---
+    /**
+     * Her bir cihaz için ekranda görünecek kontrol panelini (Kart) oluşturur.
+     * Cihazın tipine göre gösterilecek olan metinleri ve durum bilgisini dinamik olarak ayarlar.
+     */
     private JPanel createDeviceCard(Smartdevice device, String title, String categoryCode) {
         JPanel card = new JPanel(new BorderLayout(10, 10));
         card.setBackground(panelDark);
@@ -278,6 +336,7 @@ public class SmartHomeGUI extends JFrame {
             new EmptyBorder(15, 15, 15, 15)
         ));
 
+        // Durum kontrolü (Instance of ile tipe özel veri çekme)
         String statusText = "Off";
         if (device instanceof LightingDevice) {
             int b = ((LightingDevice)device).getBrightness();
@@ -328,9 +387,12 @@ public class SmartHomeGUI extends JFrame {
         JButton startBtn = createButton("Start / Configure", successColor);
         JButton stopBtn = createButton("Stop", dangerColor);
 
+        // "BAŞLAT / AYARLA" Butonu Olay Yöneticisi
+        // Cihazın sınıfına (Class) göre ekrana farklı ayar pop-up'ları çıkarılır.
         startBtn.addActionListener(e -> {
             try {
                 if (device instanceof Ocak) {
+                    // Ocak için özel 4 gözlü grid panel tasarımı
                     JPanel ocakPanel = new JPanel(new GridLayout(2, 2, 15, 15));
                     ocakPanel.setPreferredSize(new Dimension(280, 280));
                     ocakPanel.setBackground(bgDark);
@@ -349,6 +411,7 @@ public class SmartHomeGUI extends JFrame {
                     } catch (Exception ex) {}
 
                     final ImageIcon finalFireIcon = fireIcon;
+                    // Ocağın önceki durumunu hafızadan çekiyoruz.
                     boolean[] durum = ocakHafizasi.getOrDefault(device, new boolean[4]);
 
                     for (int i = 0; i < 4; i++) {
@@ -361,6 +424,7 @@ public class SmartHomeGUI extends JFrame {
                         
                         final String pos = positions[i];
 
+                        // Eğer göz daha önceden açıksa buton tasarımı aktif olarak ayarlanır.
                         if (durum[i]) {
                             burners[i].setSelected(true);
                             burners[i].setBackground(dangerColor);
@@ -399,16 +463,13 @@ public class SmartHomeGUI extends JFrame {
                             durum[i] = burners[i].isSelected();
                             if (durum[i]) activeCount++;
                         }
-                        if (activeCount == 0) {
-                            JOptionPane.showMessageDialog(this, "No burners selected. Operation cancelled.");
-                            return;
-                        }
-                        ocakHafizasi.put(device, durum);
+                        ocakHafizasi.put(device, durum); // Durumu hafızaya kaydet.
                         ((Ocak) device).setActiveBurners(activeCount);
                         ((Cookable) device).startCooking();
                     } else return; 
                 }
                 else if (device.getClass().getSimpleName().equals("Airfryer")) {
+                    // Airfryer için JSlider barındıran ısı ayarı paneli
                     int prevTemp = airfryerHafizasi.getOrDefault(device, 180); 
                     JSlider tempSlider = new JSlider(80, 220, prevTemp);
                     tempSlider.setMajorTickSpacing(20);
@@ -434,6 +495,7 @@ public class SmartHomeGUI extends JFrame {
                     ((Cookable) device).startCooking();
                 }
                 else if (device instanceof KahveMakinesi) {
+                    // Kahve makinesi için JComboBox barındıran tür seçimi paneli
                     KahveMakinesi km = (KahveMakinesi) device;
                     String[] coffees = {"Filter Coffee", "Espresso", "Americano", "Latte", "Cappuccino", "Turkish Coffee"};
                     JComboBox<String> coffeeBox = new JComboBox<>(coffees);
@@ -449,6 +511,7 @@ public class SmartHomeGUI extends JFrame {
                     ((Drinkable) device).startBrewing();
                 }
                 else if (device instanceof RobotSupurge) {
+                    // Robot süpürge için oda seçimi paneli
                     String[] rooms = {"Whole House", "Living Room", "Kitchen", "Bedroom", "Hallway", "Kids Room"};
                     JComboBox<String> roomBox = new JComboBox<>(rooms);
                     roomBox.setSelectedItem(supurgeHafizasi.getOrDefault(device, "Whole House"));
@@ -464,6 +527,7 @@ public class SmartHomeGUI extends JFrame {
                     ((Cleanable) device).startCleaning();
                 }
                 else if (device instanceof Televizyon) {
+                    // Televizyon için ses seviyesi ayar paneli (JSlider)
                     Televizyon tv = (Televizyon) device;
                     JSlider volSlider = new JSlider(0, 100, tv.getVolumeLevel());
                     volSlider.setMajorTickSpacing(25);
@@ -489,6 +553,7 @@ public class SmartHomeGUI extends JFrame {
                     ((Playable) device).startPlaying();
                 }
                 else if (device instanceof SeritLamba) {
+                    // Şerit Lamba için JColorChooser kullanan renk seçimi ve parlaklık paneli
                     SeritLamba led = (SeritLamba) device;
                     JPanel panel = new JPanel(new GridLayout(2, 1, 15, 15));
                     
@@ -505,6 +570,7 @@ public class SmartHomeGUI extends JFrame {
                             newColor[0] = hex;
                             colorBtn.setText("Selected Color: " + hex);
                             colorBtn.setBackground(c);
+                            // Kontrast ayarı: Buton arkaplanı çok açıksa yazıyı siyah, koyuysa beyaz yap.
                             double luminance = 0.299 * c.getRed() + 0.587 * c.getGreen() + 0.114 * c.getBlue();
                             colorBtn.setForeground(luminance > 128 ? Color.BLACK : Color.WHITE);
                         }
@@ -531,6 +597,7 @@ public class SmartHomeGUI extends JFrame {
                     } else return;
                 }
                 else if (device instanceof LightingDevice) {
+                    // Normal akıllı lambalar için parlaklık paneli
                     LightingDevice light = (LightingDevice) device;
                     JSlider lightSlider = new JSlider(0, 100, light.getBrightness());
                     lightSlider.setMajorTickSpacing(25);
@@ -559,14 +626,16 @@ public class SmartHomeGUI extends JFrame {
                      ((SicaklikDevice) device).setCompressorStatus("Running");
                 }
                 
-                openCategoryScreen(title, categoryCode); 
+                openCategoryScreen(title, categoryCode); // Ekranı yenile.
             } catch (Exception ex) { JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE); }
         });
 
+        // "DURDUR" Butonu Olay Yöneticisi
+        // Arayüzlerin (Interfaces) polymorfik yapısı kullanılarak uygun kapatma metodu çağrılır.
         stopBtn.addActionListener(e -> {
             if (device instanceof CookingDevice) {
                 ((Cookable) device).stopCooking();
-                if (device instanceof Ocak) ocakHafizasi.put(device, new boolean[4]); 
+                if (device instanceof Ocak) ocakHafizasi.put(device, new boolean[4]); // Ocağı tamamen sıfırla
             }
             else if (device instanceof CleaningDevice) ((Cleanable) device).stopCleaning();
             else if (device instanceof DrinkingDevice) ((Drinkable) device).stopBrewing();
@@ -575,7 +644,7 @@ public class SmartHomeGUI extends JFrame {
             else if (device instanceof LightingDevice) ((LightingDevice) device).setBrightness(0);
             else if (device instanceof SicaklikDevice) ((SicaklikDevice) device).setCompressorStatus("Standby");
             
-            openCategoryScreen(title, categoryCode); 
+            openCategoryScreen(title, categoryCode); // Ekranı yenile.
         });
 
         actionPanel.add(startBtn);
@@ -585,6 +654,9 @@ public class SmartHomeGUI extends JFrame {
         return card;
     }
 
+    /**
+     * Kod tekrarını önlemek için buton oluşturan yardımcı bir metot.
+     */
     private JButton createButton(String text, Color bgColor) {
         JButton btn = new JButton(text);
         btn.setFont(new Font("Segoe UI", Font.BOLD, 14));
@@ -595,10 +667,11 @@ public class SmartHomeGUI extends JFrame {
         return btn;
     }
 
-    // --- STATE MANAGEMENT YARDIMCI METODLARI ---
+    // --- DURUM YÖNETİMİ (STATE MANAGEMENT) METOTLARI ---
 
     /**
-     * Session Save: Çıkış yaparken kullanıcının özel ayarlarını ve cihaz durumlarını kaydeder.
+     * Session Save: Kullanıcı çıkış yaparken kendisine özel ayarlarını ve evdeki cihazların son durumunu RAM hafızasına (HashMap) kaydeder.
+     * Bu sayede "Multi-verse" (Çoklu evren) mantığı sağlanır.
      */
     private void saveCurrentSession() {
         if (loggedInUsername == null) return;
@@ -609,6 +682,7 @@ public class SmartHomeGUI extends JFrame {
         state.airfryerHafizasi.putAll(airfryerHafizasi);
         state.supurgeHafizasi.putAll(supurgeHafizasi);
         
+        // Evdeki tüm cihazların fiziksel durumları tek tek taranıp state nesnesine kopyalanır.
         for (Smartdevice device : hub.getDeviceList()) {
             if (device instanceof CookingDevice) state.onOffStates.put(device, ((CookingDevice) device).getIsCooking());
             else if (device instanceof CleaningDevice) state.onOffStates.put(device, ((CleaningDevice) device).getIsCleaning());
@@ -623,25 +697,88 @@ public class SmartHomeGUI extends JFrame {
             if (device instanceof SicaklikDevice) state.stringStates.put(device, ((SicaklikDevice)device).getCompressorStatus());
         }
         
-        userSessions.put(loggedInUsername, state);
+        userSessions.put(loggedInUsername, state); // İlgili kullanıcının adına özel Map yapısına kaydet.
+    }
+
+    // --- VERİTABANI ENTEGRASYONU (DATABASE INTEGRATION - FILE I/O) ---
+    
+    /**
+     * Sistemi kapatırken (Shutdown Hook ile tetiklenir) tüm cihazların fiziksel son durumlarını 
+     * Singleton olan Database sınıfı yardımıyla TXT dosyasına (Fiziksel HDD/SSD) yazar.
+     */
+    private void saveSystemStateToDatabase() {
+        Database db = Database.getInstance();
+        for (Smartdevice device : hub.getDeviceList()) {
+            String id = device.getDeviceId();
+            if (device instanceof CookingDevice) db.saveData(id + "_status", String.valueOf(((CookingDevice) device).getIsCooking()));
+            else if (device instanceof CleaningDevice) db.saveData(id + "_status", String.valueOf(((CleaningDevice) device).getIsCleaning()));
+            else if (device instanceof DrinkingDevice) db.saveData(id + "_status", String.valueOf(((DrinkingDevice) device).getIsBrewing()));
+            else if (device instanceof TechDevice) db.saveData(id + "_status", String.valueOf(((TechDevice) device).getIsPlaying()));
+            else if (device instanceof SecurityDevice) db.saveData(id + "_status", String.valueOf(((SecurityDevice) device).getIsSecurityActive()));
+            
+            if (device instanceof LightingDevice) db.saveData(id + "_brightness", String.valueOf(((LightingDevice) device).getBrightness()));
+            if (device instanceof SeritLamba) db.saveData(id + "_color", ((SeritLamba) device).getColorCode());
+        }
+        // Cache üzerindeki biriken verileri topluca fiziksel dosyaya dök.
+        db.saveCacheToFile();
     }
 
     /**
-     * Session Load: Kullanıcı giriş yaptığında eski ayarlarını hafızadan çekip fiziksel cihazlara uygular.
+     * Program ilk açıldığında çalışır. 
+     * Daha önceden fiziksel dosyaya kaydedilmiş olan (örneğin elektrikler gitmeden önceki) ev durumunu okur ve cihazlara uygular.
+     */
+    private void loadSystemStateFromDatabase() {
+        Database db = Database.getInstance();
+        for (Smartdevice device : hub.getDeviceList()) {
+            String id = device.getDeviceId();
+            String status = db.getData(id + "_status");
+            boolean isOn = "true".equals(status);
+
+            if (device instanceof LightingDevice) {
+                String bright = db.getData(id + "_brightness");
+                if (bright != null) ((LightingDevice) device).setBrightness(Integer.parseInt(bright));
+            }
+            if (device instanceof SeritLamba) {
+                String color = db.getData(id + "_color");
+                if (color != null) ((SeritLamba) device).setColorCode(color);
+            }
+            
+            if (isOn) {
+                try {
+                    // Cihaz önceden açıksa tekrar başlat.
+                    if (device instanceof CookingDevice) ((Cookable) device).startCooking();
+                    else if (device instanceof CleaningDevice) ((Cleanable) device).startCleaning();
+                    else if (device instanceof DrinkingDevice) ((Drinkable) device).startBrewing();
+                    else if (device instanceof TechDevice) ((Playable) device).startPlaying();
+                    else if (device instanceof SecurityDevice) ((Securable) device).activateSecurity();
+                } catch (Exception e) {}
+            }
+        }
+    }
+
+    /**
+     * Session Load: Bir kullanıcı sisteme giriş yaptığında, kendisine ait olan kayıtlı "ev evrenini" 
+     * hafızadan çeker ve fiziksel ev aletlerini bu ayarlara göre otomatik komutlandırır.
      */
     private void loadUserSession(String username) {
         loggedInUsername = username;
-        resetAllDevices(); // Önce evi herkes için tertemiz sıfırla
         
         UserSessionState state = userSessions.get(username);
-        if (state == null) return; // Kullanıcı ilk defa giriyorsa ev kapalı kalsın
+        if (state == null) {
+            // Eğer kullanıcı ilk defa giriyorsa veya uygulama yeni açıldıysa;
+            // Sıfırdan RAM Session oluşturur ve evin "o anki fiziksel durumunu" veritabanından çekilmiş haliyle miras alır.
+            saveCurrentSession();
+            return; 
+        }
+        
+        resetAllDevices(); // Sadece eski bir oturum kaydı RAM'de bulunuyorsa önce evi tamamen sıfırla, sonra kullanıcının özel ayarlarını yükle.
         
         // GUI hafızalarını geri yükle
         ocakHafizasi.putAll(state.ocakHafizasi);
         airfryerHafizasi.putAll(state.airfryerHafizasi);
         supurgeHafizasi.putAll(state.supurgeHafizasi);
         
-        // Fiziksel cihazlara komut göndererek eski durumlarına getir
+        // Fiziksel cihazlara komut göndererek kullanıcının bıraktığı eski durumlarına getir.
         for (Smartdevice device : hub.getDeviceList()) {
             if (device instanceof LightingDevice) ((LightingDevice)device).setBrightness(state.intStates.getOrDefault(device, 0));
             if (device instanceof SeritLamba) ((SeritLamba)device).setColorCode(state.stringStates.getOrDefault(device, "#FFFFFF"));
@@ -665,7 +802,8 @@ public class SmartHomeGUI extends JFrame {
     }
 
     /**
-     * Physical Reset: Tüm arayüz hafızasını siler ve fiziksel cihazları kapatır.
+     * Physical Reset: Farklı bir kullanıcı hesabı giriş yapmadan önce, 
+     * evi fabrika ayarlarına döndürür gibi tüm cihazları kapalı ve sıfır duruma getirir.
      */
     private void resetAllDevices() {
         ocakHafizasi.clear();
@@ -683,6 +821,10 @@ public class SmartHomeGUI extends JFrame {
         }
     }
 
+    /**
+     * Programın ana giriş noktası. (Main Method)
+     * Swing GUI'nin thread-safe (iş parçacığı güvenli) şekilde çalışması için invokeLater kullanılır.
+     */
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new SmartHomeGUI().setVisible(true));
     }
